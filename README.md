@@ -5,6 +5,10 @@ Face Detection on school year group photo and automatic labelling.
 
 ![Demo](https://github.com/catree/QFaceDetectionAndLabelling/blob/master/Demo.gif)
 
+« <a href="https://commons.wikimedia.org/wiki/File:Condorcet_1897.jpg#/media/File:Condorcet_1897.jpg">Condorcet 1897</a> » par Pierre Petit — 
+<span class="int-own-work" lang="fr">Travail personnel</span>. Sous licence <a title="Creative Commons Attribution-Share Alike 3.0" 
+href="http://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a> via <a href="https://commons.wikimedia.org/wiki/">Wikimedia Commons</a>.
+
 
 ## Development environment
 - Windows 7 64 bits
