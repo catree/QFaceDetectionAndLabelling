@@ -19,6 +19,7 @@
 /**
 	@author: Catree
 	@date: 2015/07/14
+	@dateUpdate: 2015/09/19
 **/
 
 
@@ -51,6 +52,7 @@ QProcessingDialog::QProcessingDialog(DetectAndLabelizeFaces &detectEngine, const
 	connect(m_threadDetectEngine, SIGNAL(sendTextEdit(const std::string &)), this, SLOT(updateTextEdit(const std::string &)));
 	connect(m_threadDetectEngine, SIGNAL(sendProgressBar(const int)), this, SLOT(updateProgressBar(const int)));
 	connect(m_threadDetectEngine, SIGNAL(sendProgressLabel(const std::string &)), this, SLOT(updateProgressLabel(const std::string &)));
+	connect(m_threadDetectEngine, SIGNAL(sendError()), this, SLOT(updateError()));
 
 	//Start thread
 	m_threadDetectEngine->start();
@@ -79,6 +81,12 @@ void QProcessingDialog::updateProgressBar(const int value)
 void QProcessingDialog::updateProgressLabel(const std::string &label)
 {
 	m_progressLabel->setText(QString::fromStdString(label));
+}
+
+void QProcessingDialog::updateError()
+{
+	QMessageBox::warning(this, tr("Error"), tr("Problem with Face detection engine !"));
+	QMetaObject::invokeMethod(this, "close", Qt::QueuedConnection);
 }
 
 void QProcessingDialog::closeEvent(QCloseEvent *event)

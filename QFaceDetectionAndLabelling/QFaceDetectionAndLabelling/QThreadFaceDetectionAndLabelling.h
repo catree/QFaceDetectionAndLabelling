@@ -23,6 +23,7 @@
 /**
 	@author: Catree
 	@date: 2015/07/14
+	@dateUpdate: 2015/09/19
 **/
 
 
@@ -34,6 +35,7 @@ signals:
 	void sendProgressBar(const int value);
 	void sendProgressLabel(const std::string &label);
 	void sendProgressFinished();
+	void sendError();
 
 public:
 	DetectAndLabelizeFaces *m_detectEngine;

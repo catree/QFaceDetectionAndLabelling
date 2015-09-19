@@ -30,6 +30,7 @@
 /**
 	@author: Catree
 	@date: 2015/07/14
+	@dateUpdate: 2015/09/19
 **/
 
 
@@ -102,14 +103,17 @@ public:
 
 	void process(const std::string &imageFilepath)
 	{
-		cv::Mat originalImg = readImage(imageFilepath);
-		if(!originalImg.empty())
+		if(!m_faceCascade.empty())
 		{
-			cv::Mat img;
-			originalImg.copyTo(img);
-			int medianFaceWidth = 40;
-			std::vector<face_info_t> vectorOfFaces = detectFacesAndDisplayLabels(img, m_faceCascade, medianFaceWidth);
-			m_vectorOfImageData.push_back(ImageData(img, originalImg, vectorOfFaces, imageFilepath, medianFaceWidth));
+			cv::Mat originalImg = readImage(imageFilepath);
+			if(!originalImg.empty())
+			{
+				cv::Mat img;
+				originalImg.copyTo(img);
+				int medianFaceWidth = 40;
+				std::vector<face_info_t> vectorOfFaces = detectFacesAndDisplayLabels(img, m_faceCascade, medianFaceWidth);
+				m_vectorOfImageData.push_back(ImageData(img, originalImg, vectorOfFaces, imageFilepath, medianFaceWidth));
+			}
 		}
 	}
 
@@ -313,18 +317,23 @@ public:
 	//@see: http://stackoverflow.com/a/24235744
 	static double median(std::vector<int> &v)
 	{
-		size_t n = v.size() / 2;
-		std::nth_element(v.begin(), v.begin()+n, v.end());
-		int vn = v[n];
-		if(v.size() % 2 == 1)
+		if(v.size() > 0)
 		{
-			return vn;
+			size_t n = v.size() / 2;
+			std::nth_element(v.begin(), v.begin()+n, v.end());
+			int vn = v[n];
+			if(v.size() % 2 == 1)
+			{
+				return vn;
+			}
+			else
+			{
+				std::nth_element(v.begin(), v.begin()+n-1, v.end());
+				return 0.5*(vn+v[n-1]);
+			}
 		}
-		else
-		{
-			std::nth_element(v.begin(), v.begin()+n-1, v.end());
-			return 0.5*(vn+v[n-1]);
-		}
+
+		throw std::exception("Vector is empty !");
 	}
 };
 

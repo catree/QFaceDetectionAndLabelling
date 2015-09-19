@@ -19,6 +19,7 @@
 /**
 	@author: Catree
 	@date: 2015/07/14
+	@dateUpdate: 2015/09/19
 **/
 
 
@@ -36,28 +37,35 @@ void QThreadFaceDetectionAndLabelling::run()
 {
 	//Clear the data
 	m_detectEngine->m_vectorOfImageData.clear();
-	size_t nb = 0;
-	for(std::vector<std::string>::const_iterator it = m_vectorOfImageFilepaths.begin(); it != m_vectorOfImageFilepaths.end(); ++it, nb++)
+
+	if(m_detectEngine->m_faceCascade.empty())
 	{
-		if(m_stop)
+		emit sendError();
+	}
+	else
+	{
+		size_t nb = 0;
+		for(std::vector<std::string>::const_iterator it = m_vectorOfImageFilepaths.begin(); it != m_vectorOfImageFilepaths.end(); ++it, nb++)
 		{
-			break;
+			if(m_stop)
+			{
+				break;
+			}
+
+			m_detectEngine->process(*it);
+			std::stringstream ss;
+			ss.str("");
+			QFileInfo fileInfoImg(QString::fromStdString(*it));
+			ss << "Found: " << m_detectEngine->m_vectorOfImageData[nb].m_vectorOfDetectedFaces.size() << " faces for " << fileInfoImg.fileName().toStdString() << "." << std::endl;
+			emit sendTextEdit(ss.str());
+
+			ss.str("");
+			ss << (nb+1) << "/" << m_vectorOfImageFilepaths.size();
+			emit sendProgressLabel(ss.str());
+
+			int pourcentage = (int) ((nb+1) * 100 / m_vectorOfImageFilepaths.size());
+			emit sendProgressBar(pourcentage);
 		}
-
-		std::stringstream ss;
-		ss << "Read: " << *it;
-		emit sendTextEdit(ss.str());
-		m_detectEngine->process(*it);
-		ss.str("");
-		ss << "Found: " << m_detectEngine->m_vectorOfImageData[nb].m_vectorOfDetectedFaces.size() << " faces.\n";
-		emit sendTextEdit(ss.str());
-
-		ss.str("");
-		ss << (nb+1) << "/" << m_vectorOfImageFilepaths.size();
-		emit sendProgressLabel(ss.str());
-
-		int pourcentage = (int) ((nb+1) * 100 / m_vectorOfImageFilepaths.size());
-		emit sendProgressBar(pourcentage);
 	}
 
 	emit sendProgressFinished();

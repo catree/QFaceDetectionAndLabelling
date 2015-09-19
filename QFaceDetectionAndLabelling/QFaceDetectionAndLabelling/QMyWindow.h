@@ -28,12 +28,14 @@
 #include "QOpenCVWidget.h"
 #include "DetectAndLabelizeFaces.h"
 #include "QProcessingDialog.h"
+#include "QAutoProcessDialog.h"
 
 class QOpenCVWidget;
 
 /**
 	@author: Catree
 	@date: 2015/07/14
+	@dateUpdate: 2015/09/19
 **/
 
 
@@ -51,12 +53,14 @@ public:
 private slots:
     void open();
     void save();
+    void autoProcess();
 	void help();
 	void about();
     void aboutQt();
 	void previous();
 	void next();
 	void updateProgressFinished();
+	void updateAutoProgressFinished();
 
 private:
 	QOpenCVWidget* m_imageWidget;
@@ -65,6 +69,7 @@ private:
 
 	QAction *m_openAct;
 	QAction *m_saveAct;
+	QAction *m_autoProcessAct;
 	QAction *m_exitAct;
 	QAction *m_helpAct;
 	QAction *m_aboutAct;
@@ -79,6 +84,7 @@ private:
 	int m_currentPosition;
 
 	QProcessingDialog *m_processingDialog;
+	QAutoProcessDialog *m_autoProcessDialog;
 
 	void createActions();
 	void createMenus();

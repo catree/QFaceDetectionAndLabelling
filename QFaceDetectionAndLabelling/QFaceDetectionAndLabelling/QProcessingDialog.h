@@ -25,6 +25,7 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QTextEdit>
+#include <QtWidgets/QMessageBox>
 
 #include "DetectAndLabelizeFaces.h"
 #include "QThreadFaceDetectionAndLabelling.h"
@@ -32,6 +33,7 @@
 /**
 	@author: Catree
 	@date: 2015/07/14
+	@dateUpdate: 2015/09/19
 **/
 
 
@@ -56,6 +58,7 @@ private slots:
 	void updateTextEdit(const std::string &text);
 	void updateProgressBar(const int value);
 	void updateProgressLabel(const std::string &label);
+	void updateError();
 }; 
 
 #endif

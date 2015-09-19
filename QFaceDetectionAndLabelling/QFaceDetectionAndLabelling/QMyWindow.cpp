@@ -21,6 +21,7 @@
 /**
 	@author: Catree
 	@date: 2015/07/14
+	@dateUpdate: 2015/09/19
 **/
 
 
@@ -58,7 +59,7 @@ QMyWindow::QMyWindow(void) : QMainWindow(), m_detectEngine(), m_vectorOfImageFil
 	//new QShortcut(QKeySequence(Qt::LeftArrow), this, SLOT(previous()));
 	//new QShortcut(QKeySequence(Qt::RightArrow), this, SLOT(next()));
 
-	setWindowTitle(tr("QFaceDetectionAndLabelling (Alpha) by Catree. (2015/07/14)"));
+	setWindowTitle(tr("QFaceDetectionAndLabelling (Alpha) by Catree. (2015/09/19)"));
 	setMinimumSize(640, 480);
 	show();
 }
@@ -75,7 +76,7 @@ void QMyWindow::open()
 	m_vectorOfImageFilepaths.clear();
 	for (QStringList::const_iterator it = file_lists.constBegin(); it != file_lists.constEnd(); ++it)
 	{
-		m_vectorOfImageFilepaths.push_back((*it).toLocal8Bit().constData());
+		m_vectorOfImageFilepaths.push_back((*it).toStdString());
 		//std::cout << "File=" << (*it).toLocal8Bit().constData() << std::endl;
 	}
 
@@ -129,11 +130,50 @@ void QMyWindow::save()
 	}
 }
 
+void QMyWindow::autoProcess()
+{
+	//Display dialog to select the directory that contains the images
+	QStringList file_lists = QFileDialog::getOpenFileNames(this, QString(),
+		QString(), tr("Images (*.png *.jpg *.jpeg *.bmp);;All files (*.*)"));
+
+	m_vectorOfImageFilepaths.clear();
+	for (QStringList::const_iterator it = file_lists.constBegin(); it != file_lists.constEnd(); ++it)
+	{
+		m_vectorOfImageFilepaths.push_back((*it).toStdString());
+		//std::cout << "File=" << (*it).toLocal8Bit().constData() << std::endl;
+	}
+
+	if(!m_vectorOfImageFilepaths.empty())
+	{
+		//Display dialog to select the output directory
+		QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+			QString(),
+			QFileDialog::ShowDirsOnly
+			| QFileDialog::DontResolveSymlinks);
+
+		if(!dir.isEmpty())
+		{
+			//Ask to overwrite or not
+			QMessageBox::StandardButton reply;
+			std::stringstream ss;
+			ss << "Do you want to overwrite if the file already exists ?\n";
+			reply = QMessageBox::question(this, tr("Overwrite ?"), tr(ss.str().c_str()),
+				QMessageBox::Yes | QMessageBox::No);
+			bool overwrite = (reply == QMessageBox::Yes);
+
+			//Display the auto process dialog
+			m_autoProcessDialog = new QAutoProcessDialog(m_detectEngine, m_vectorOfImageFilepaths, dir.toStdString(), overwrite, this, Qt::Dialog);
+			connect(m_autoProcessDialog->m_threadDetectEngine, SIGNAL(sendAutoProgressFinished()), this, SLOT(updateAutoProgressFinished()));
+		}
+	}
+}
+
 void QMyWindow::help()
 {
     QMessageBox::about(this, tr("Help Menu"),
             tr("File > Open (or Ctrl+o): load the images.\n"
 			"File > Save to directory (or Ctrl+s): save the images into a directory.\n"
+			"File > Auto Process: 1) Select the images 2) Select the directory where will e saved the images 3) Select yes to overwrite or no otherise.\n"
 			"Double click to remove the label at the specified mouse position.\n"
 			"Right click to add a label at the specified mouse position."));
 }
@@ -194,6 +234,11 @@ void QMyWindow::updateProgressFinished()
 	}
 }
 
+void QMyWindow::updateAutoProgressFinished()
+{
+	m_autoProcessDialog->close();
+}
+
 void QMyWindow::createActions()
 {
     m_openAct = new QAction(tr("&Open"), this);
@@ -206,7 +251,11 @@ void QMyWindow::createActions()
     m_saveAct->setStatusTip(tr("Save to directory"));
     connect(m_saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
-	m_exitAct = new QAction(tr("E&xit"), this);
+    m_autoProcessAct = new QAction(tr("&Auto Process"), this);
+    m_autoProcessAct->setStatusTip(tr("Auto Process"));
+    connect(m_autoProcessAct, SIGNAL(triggered()), this, SLOT(autoProcess()));
+
+	m_exitAct = new QAction(tr("&Exit"), this);
     m_exitAct->setShortcuts(QKeySequence::Quit);
     m_exitAct->setStatusTip(tr("Exit the application"));
     connect(m_exitAct, SIGNAL(triggered()), this, SLOT(close()));
@@ -230,6 +279,8 @@ void QMyWindow::createMenus()
     m_fileMenu = menuBar()->addMenu(tr("&File"));
     m_fileMenu->addAction(m_openAct);
     m_fileMenu->addAction(m_saveAct);
+    m_fileMenu->addSeparator();
+    m_fileMenu->addAction(m_autoProcessAct);
     m_fileMenu->addSeparator();
     m_fileMenu->addAction(m_exitAct);
 
